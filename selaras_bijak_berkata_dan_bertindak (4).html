@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selaras — Bijak Berkata dan Bertindak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16213E; --navy-soft:#233158; --paper:#F1EEE2; --paper-2:#E8E4D4;
+    --gold:#D9A441; --gold-deep:#B9852B; --teal:#33776A; --teal-deep:#255A50;
+    --brick:#C24A3B; --ink:#1C2333; --slate:#4C5670; --slate-soft:#7A8299; --line:#D8D2BE;
+    --radius:18px; --serif:'Fraunces', Georgia, serif;
+    --sans:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono:'IBM Plex Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; font-family:var(--sans); background:var(--paper); color:var(--ink); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--gold); color:var(--navy);}
+  :focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+  h1,h2,h3{font-family:var(--serif); margin:0 0 .4em; color:var(--navy); font-weight:600;}
+  p{margin:0 0 1em;}
+  button{font-family:var(--sans); cursor:pointer;}
+  .hidden{display:none !important;}
+  .eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--teal-deep); font-weight:600;}
+
+  /* editable highlight (teacher mode) */
+  [contenteditable="true"]{outline:2px dashed var(--gold); outline-offset:3px; border-radius:6px; cursor:text;}
+  [contenteditable="true"]:hover{background:rgba(217,164,65,.1);}
+  [contenteditable="true"]:focus{background:rgba(217,164,65,.16); outline-style:solid;}
+
+  /* ============ LANDING ============ */
+  #landing{min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 15% 20%, rgba(217,164,65,.16), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(51,119,106,.18), transparent 45%), var(--navy);
+    padding:32px 20px; position:relative; overflow:hidden;}
+  .landing-card{position:relative; z-index:2; width:100%; max-width:560px; background:var(--paper);
+    border-radius:24px; padding:44px 40px 34px; box-shadow:0 30px 70px rgba(0,0,0,.35);}
+  .brand-row{display:flex; align-items:center; gap:14px; margin-bottom:26px;}
+  .brand-mark{width:46px; height:46px; flex:none;}
+  .brand-name{font-family:var(--mono); font-size:.78rem; letter-spacing:.16em; color:var(--slate); text-transform:uppercase;}
+  .brand-title{font-family:var(--serif); font-size:1.05rem; color:var(--navy); font-weight:700; line-height:1;}
+  .landing-card h1{font-size:2.1rem; letter-spacing:-.01em;}
+  .landing-card .lede{color:var(--slate); font-size:1.02rem; max-width:44ch;}
+  .align-anim{margin:22px 0 8px; height:78px;}
+  .align-anim svg{width:100%; height:100%; display:block;}
+  .path-merge{stroke:var(--gold); stroke-dasharray:220; stroke-dashoffset:220; animation:draw 1.6s .6s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @media (prefers-reduced-motion: reduce){.path-merge{animation:none; stroke-dashoffset:0;}}
+  .field-group{margin-top:22px;}
+  label{display:block; font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--slate); margin-bottom:7px;}
+  input[type=text],input[type=url]{width:100%; padding:13px 15px; border-radius:12px; border:1.5px solid var(--line); background:#fff; font-size:1rem; font-family:var(--sans); color:var(--ink);}
+  input[type=text]:focus,input[type=url]:focus{border-color:var(--gold);}
+  .field-row{display:flex; gap:14px; margin-top:14px;}
+  .field-row > div{flex:1;}
+  .btn-start{margin-top:24px; width:100%; padding:15px; border:none; border-radius:12px; background:var(--navy); color:var(--paper); font-weight:700; font-size:1.02rem; transition:transform .15s ease, background .15s ease;}
+  .btn-start:hover{background:var(--teal-deep); transform:translateY(-1px);}
+  .err-msg{color:var(--brick); font-size:.85rem; margin-top:8px; font-weight:600; display:none;}
+  .landing-foot{margin-top:18px; font-size:.8rem; color:var(--slate-soft);}
+  .teacher-entry{margin-top:14px; text-align:center;}
+  .teacher-entry button{background:none; border:none; color:var(--slate-soft); font-size:.78rem; text-decoration:underline; padding:4px;}
+  .teacher-entry button:hover{color:var(--gold-deep);}
+
+  /* ============ APP SHELL ============ */
+  #app{min-height:100vh;}
+  header.topbar{position:sticky; top:0; z-index:40; background:var(--navy); color:var(--paper); padding:14px 22px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; border-bottom:3px solid var(--gold);}
+  .topbar-brand{display:flex; align-items:center; gap:10px;}
+  .topbar-brand .brand-mark{width:30px; height:30px;}
+  .topbar-brand span{font-family:var(--serif); font-weight:700; font-size:1.15rem;}
+  nav.tabs{display:flex; gap:4px; flex-wrap:wrap;}
+  nav.tabs button{background:transparent; border:1.5px solid rgba(241,238,226,.25); color:var(--paper); padding:8px 14px; border-radius:100px; font-size:.85rem; font-weight:600; transition:all .15s ease;}
+  nav.tabs button:hover{border-color:var(--gold);}
+  nav.tabs button.active{background:var(--gold); border-color:var(--gold); color:var(--navy);}
+  .topbar-right{display:flex; align-items:center; gap:8px;}
+  .student-pill{font-family:var(--mono); font-size:.76rem; background:rgba(217,164,65,.15); border:1px solid rgba(217,164,65,.4); color:var(--gold); padding:7px 12px; border-radius:100px; white-space:nowrap;}
+  .btn-teacher{background:transparent; border:1.5px solid rgba(241,238,226,.3); color:var(--paper); padding:7px 12px; border-radius:100px; font-size:.78rem; font-weight:600;}
+  .btn-teacher.on{background:var(--brick); border-color:var(--brick); color:#fff;}
+
+  main.panel{padding:40px 22px 80px; max-width:900px; margin:0 auto;}
+  .panel-section{animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .section-head{margin-bottom:28px;}
+  .section-head h2{font-size:1.9rem;}
+
+  .welcome-hero{background:var(--navy); color:var(--paper); border-radius:var(--radius); padding:34px 30px; margin-bottom:30px; position:relative; overflow:hidden;}
+  .welcome-hero::after{content:""; position:absolute; right:-40px; top:-40px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle, rgba(217,164,65,.35), transparent 70%);}
+  .welcome-hero h2{color:var(--paper); font-size:1.7rem; position:relative;}
+  .welcome-hero p{color:#CBD1E0; position:relative; max-width:56ch;}
+  .goal-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:14px; margin-top:24px;}
+  .goal-card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px;}
+  .goal-card .num{font-family:var(--mono); color:var(--gold-deep); font-weight:600; font-size:.78rem;}
+  .goal-card p{margin:.4em 0 0; font-size:.92rem; color:var(--slate);}
+
+  .accordion{border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:14px; background:#fff;}
+  .acc-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; background:#fff; border:none; width:100%; text-align:left;}
+  .acc-head .tag{font-family:var(--mono); font-size:.7rem; color:var(--teal-deep); background:rgba(51,119,106,.1); padding:4px 9px; border-radius:100px; margin-right:10px;}
+  .acc-head h3{margin:0; font-size:1.08rem; display:inline; color:var(--ink);}
+  .acc-head .chev{transition:transform .2s ease; color:var(--slate); flex:none;}
+  .accordion.open .acc-head .chev{transform:rotate(180deg);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .acc-body-inner{padding:0 20px 20px; color:var(--slate);}
+  .acc-body-inner ul{margin:0; padding-left:1.2em;}
+  .acc-body-inner li{margin-bottom:.5em;}
+
+  .case-card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:26px; margin-bottom:20px; border-left:5px solid var(--brick);}
+  .case-card h3{font-size:1.15rem;}
+  .case-card .case-label{font-family:var(--mono); font-size:.72rem; color:var(--brick); text-transform:uppercase; letter-spacing:.08em;}
+  .case-q{background:var(--paper-2); border-radius:10px; padding:14px 16px; margin-top:14px;}
+  .case-q p{margin:0 0 .3em; font-weight:600; font-size:.92rem;}
+  textarea{width:100%; min-height:70px; margin-top:8px; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line); font-family:var(--sans); font-size:.92rem; resize:vertical;}
+  textarea:focus{border-color:var(--teal);}
+
+  .game-shell{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:30px; text-align:center;}
+  .progress-bar{height:8px; background:var(--paper-2); border-radius:100px; overflow:hidden; margin-bottom:22px;}
+  .progress-fill{height:100%; background:var(--gold); width:0%; transition:width .3s ease;}
+  .score-tag{font-family:var(--mono); font-size:.8rem; color:var(--slate); margin-bottom:6px;}
+  .scenario-card{background:var(--navy); color:var(--paper); border-radius:16px; padding:28px 24px; font-size:1.08rem; margin:0 auto 22px; max-width:520px; min-height:110px; display:flex; align-items:center; justify-content:center;}
+  .game-choices{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .choice-btn{padding:14px 26px; border-radius:100px; border:2px solid var(--navy); background:#fff; font-weight:700; font-size:.95rem; min-width:180px; transition:all .15s ease;}
+  .choice-btn.consistent{color:var(--teal-deep); border-color:var(--teal);}
+  .choice-btn.consistent:hover{background:var(--teal); color:#fff;}
+  .choice-btn.inconsistent{color:var(--brick); border-color:var(--brick);}
+  .choice-btn.inconsistent:hover{background:var(--brick); color:#fff;}
+  .choice-btn:disabled{opacity:.55; cursor:default;}
+  .feedback-box{margin-top:22px; padding:18px 20px; border-radius:14px; text-align:left; display:none;}
+  .feedback-box.correct{background:rgba(51,119,106,.1); border:1px solid var(--teal);}
+  .feedback-box.wrong{background:rgba(194,74,59,.08); border:1px solid var(--brick);}
+  .feedback-box .verdict{font-weight:700; font-family:var(--serif); font-size:1.05rem; margin-bottom:4px;}
+  .feedback-box.correct .verdict{color:var(--teal-deep);}
+  .feedback-box.wrong .verdict{color:var(--brick);}
+  .btn-next{margin-top:18px; padding:12px 26px; border-radius:100px; border:none; background:var(--gold); color:var(--navy); font-weight:700;}
+  .game-final{display:none;}
+  .final-score{font-family:var(--serif); font-size:3rem; color:var(--gold-deep); margin:6px 0;}
+  .btn-restart{margin-top:14px; padding:10px 22px; border-radius:100px; border:1.5px solid var(--navy); background:transparent; color:var(--navy); font-weight:700;}
+
+  .reflect-form{background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:30px;}
+  .reflect-q{margin-bottom:22px;}
+  .reflect-q label{font-family:var(--sans); text-transform:none; letter-spacing:0; font-size:.98rem; color:var(--ink); font-weight:600; margin-bottom:8px;}
+  .emoji-row{display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;}
+  .emoji-opt{padding:10px 16px; border-radius:100px; border:1.5px solid var(--line); background:#fff; font-size:.9rem; font-weight:600; display:flex; gap:6px; align-items:center;}
+  .emoji-opt.selected{border-color:var(--gold); background:rgba(217,164,65,.15);}
+  .btn-submit{margin-top:8px; padding:14px 24px; border:none; border-radius:12px; background:var(--teal-deep); color:#fff; font-weight:700; width:100%; font-size:1rem;}
+  .done-note{display:none; margin-top:16px; padding:16px 18px; background:rgba(51,119,106,.1); border:1px solid var(--teal); border-radius:12px; font-size:.92rem; color:var(--teal-deep); font-weight:600;}
+
+  footer.foot{text-align:center; padding:30px 20px; color:var(--slate-soft); font-size:.8rem; font-family:var(--mono);}
+
+  /* ============ TEACHER PANEL ============ */
+  #teacherPanel{position:fixed; right:0; top:0; bottom:0; width:380px; max-width:92vw; background:#fff;
+    border-left:1px solid var(--line); box-shadow:-14px 0 40px rgba(0,0,0,.18); z-index:60;
+    display:flex; flex-direction:column; transform:translateX(0); transition:transform .25s ease;}
+  #teacherPanel.hidden{transform:translateX(100%); display:flex !important; visibility:hidden;}
+  .tp-head{background:var(--navy); color:#fff; padding:16px 18px; display:flex; align-items:center; justify-content:space-between;}
+  .tp-head h3{color:#fff; margin:0; font-size:1.05rem;}
+  .tp-close{background:transparent; border:none; color:#fff; font-size:1.2rem; padding:4px 8px;}
+  .tp-tabs{display:flex; border-bottom:1px solid var(--line);}
+  .tp-tab{flex:1; padding:11px 6px; background:#fff; border:none; font-size:.76rem; font-weight:700; color:var(--slate); border-bottom:3px solid transparent;}
+  .tp-tab.active{color:var(--teal-deep); border-bottom-color:var(--gold);}
+  .tp-body{flex:1; overflow-y:auto; padding:18px;}
+  .tp-panel{display:none;}
+  .tp-panel.active{display:block;}
+  .tp-note{font-size:.82rem; color:var(--slate); background:var(--paper-2); border-radius:10px; padding:12px 14px; margin-bottom:14px;}
+  .tp-foot{padding:16px 18px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:8px;}
+  .tp-btn{padding:11px 14px; border-radius:10px; border:none; font-weight:700; font-size:.86rem; cursor:pointer;}
+  .tp-btn.primary{background:var(--gold); color:var(--navy);}
+  .tp-btn.secondary{background:var(--paper-2); color:var(--ink);}
+  .ge-row{border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:12px;}
+  .ge-row textarea{min-height:50px; font-size:.85rem; margin-top:0; margin-bottom:8px;}
+  .ge-row select{width:100%; padding:8px; border-radius:8px; border:1.5px solid var(--line); margin-bottom:8px; font-size:.85rem;}
+  .ge-del{background:var(--brick); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-size:.78rem; font-weight:700;}
+  .tp-field{margin-bottom:12px;}
+  .tp-field label{font-size:.7rem;}
+  .tp-field input{padding:9px 11px; font-size:.85rem;}
+  .btn-add-scenario{width:100%; padding:10px; border-radius:10px; border:1.5px dashed var(--teal); background:transparent; color:var(--teal-deep); font-weight:700; font-size:.85rem; margin-top:4px;}
+
+  @media (max-width:640px){
+    .landing-card{padding:32px 24px;} .landing-card h1{font-size:1.7rem;}
+    main.panel{padding:28px 16px 60px;} header.topbar{padding:12px 14px;}
+    #teacherPanel{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LANDING ============ -->
+<div id="landing" class="hidden">
+  <div class="landing-card">
+    <div class="brand-row">
+      <svg class="brand-mark" viewBox="0 0 46 46" fill="none">
+        <circle cx="23" cy="23" r="21" stroke="#D9A441" stroke-width="2.5"></circle>
+        <path d="M12 27 L20 19 L26 25 L34 15" stroke="#33776A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+        <circle cx="34" cy="15" r="2.6" fill="#D9A441"></circle>
+      </svg>
+      <div>
+        <div class="brand-name">Bimbingan &amp; Konseling · SMPN 2 Bandar Lampung</div>
+        <div class="brand-title">Selaras</div>
+      </div>
+    </div>
+    <span class="eyebrow">Bimbingan Klasikal · Kelas VIII</span>
+    <h1 data-editable="true">Bijak Berkata &amp; Bertindak</h1>
+    <p class="lede" data-editable="true">Website belajar untuk topik Membangun Integritas Diri — cerita, kasus, dan permainan untuk melatih ucapan dan perbuatan yang selaras.</p>
+    <div class="align-anim">
+      <svg viewBox="0 0 500 90" preserveAspectRatio="none">
+        <path d="M10 20 C 150 20, 220 55, 260 55" fill="none" stroke="#33776A" stroke-width="2.5"></path>
+        <path d="M10 70 C 150 70, 220 55, 260 55" fill="none" stroke="#C24A3B" stroke-width="2.5"></path>
+        <path class="path-merge" d="M260 55 L 490 55" fill="none" stroke-width="4" stroke-linecap="round"></path>
+        <text x="12" y="14" font-family="IBM Plex Mono, monospace" font-size="11" fill="#33776A" letter-spacing="1">UCAPAN</text>
+        <text x="12" y="86" font-family="IBM Plex Mono, monospace" font-size="11" fill="#C24A3B" letter-spacing="1">PERBUATAN</text>
+        <text x="330" y="42" font-family="Fraunces, serif" font-size="15" font-weight="600" fill="#B9852B">selaras</text>
+      </svg>
+    </div>
+    <form id="startForm">
+      <div class="field-row">
+        <div><label for="fldName">Nama lengkap</label><input type="text" id="fldName" placeholder="Tulis namamu" autocomplete="off"></div>
+        <div><label for="fldClass">Kelas</label><input type="text" id="fldClass" placeholder="Contoh: VIII D" autocomplete="off"></div>
+      </div>
+      <div class="err-msg" id="errMsg">Isi dulu nama dan kelasmu, ya.</div>
+      <button type="submit" class="btn-start">Mulai Belajar →</button>
+    </form>
+    <div class="landing-foot" data-editable="true">Layanan berlangsung ± 40 menit. Ikuti arahan Guru BK di kelas.</div>
+    <div class="teacher-entry"><button type="button" id="btnTeacherEntry">⚙️ Masuk sebagai Guru (Mode Guru)</button></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <svg class="brand-mark" viewBox="0 0 46 46" fill="none">
+        <circle cx="23" cy="23" r="21" stroke="#D9A441" stroke-width="2.5"></circle>
+        <path d="M12 27 L20 19 L26 25 L34 15" stroke="#33776A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+        <circle cx="34" cy="15" r="2.6" fill="#D9A441"></circle>
+      </svg>
+      <span>Selaras</span>
+    </div>
+    <nav class="tabs" id="tabNav">
+      <button data-target="beranda" class="">Beranda</button>
+      <button data-target="materi" class="">Materi</button>
+      <button data-target="kasus" class="">Studi Kasus</button>
+      <button data-target="games" class="">Games</button>
+      <button data-target="refleksi" class="active">Refleksi</button>
+    </nav>
+    <div class="topbar-right">
+      <div class="student-pill" id="studentPill">Guru BK · Kelas -</div>
+      <button class="btn-teacher on" id="btnTeacherMode" type="button">⚙️ Mode Guru</button>
+    </div>
+  </header>
+
+  <main class="panel">
+    <section class="panel-section hidden" id="panel-beranda">
+      <div class="welcome-hero">
+        <span class="eyebrow" style="color:#D9A441">Selamat datang</span>
+        <h2 id="welcomeName">Halo, Guru BK!</h2>
+        <p data-editable="true">Hari ini kita akan belajar tentang integritas diri bagaimana caranya supaya apa yang kita ucapkan selalu sejalan dengan apa yang kita lakukan. Yuk, jelajahi setiap menu di atas satu per satu.</p>
+      </div>
+      <h3 style="font-size:1.15rem;" data-editable="true">Setelah layanan ini, kamu diharapkan mampu:</h3>
+      <div class="goal-grid">
+        <div class="goal-card"><div class="num">01</div><p data-editable="true">Menjelaskan pengertian dan ciri-ciri integritas diri.</p></div>
+        <div class="goal-card"><div class="num">02</div><p data-editable="true">Menganalisis penyebab dan dampak ucapan &amp; perbuatan yang tidak sesuai.</p></div>
+        <div class="goal-card"><div class="num">03</div><p data-editable="true">Merumuskan langkah membangun konsistensi ucapan dan perbuatan.</p></div>
+        <div class="goal-card"><div class="num">04</div><p data-editable="true">Mempraktikkan sikap jujur dan konsisten lewat permainan simulasi.</p></div>
+      </div>
+    </section>
+
+    <section class="panel-section hidden" id="panel-materi">
+      <div class="section-head"><span class="eyebrow">Materi Layanan</span><h2>Membangun Integritas Diri</h2></div>
+      <div id="accordionWrap"><div class="accordion open"><button class="acc-head" type="button"><span><span class="tag">01</span><h3 data-editable="true">Pengertian Integritas Diri</h3></span><span class="chev">▾</span></button><div class="acc-body" style="max-height: 0px;"><div class="acc-body-inner" data-editable="true"><p>Integritas diri adalah konsistensi antara
+perkataan, tindakan, dan nilai-nilai moral yang dianut seseorang dalam kehidupan sehari-hari.<br></p><p>Seseorang dikatakan berintegritas apabila tindakannya selalu selaras dengan nilai, prinsip, dan perkataannya baik ketika dilihat orang lain maupun ketika sendirian.</p></div></div></div><div class="accordion open"><button class="acc-head" type="button"><span><span class="tag">02</span><h3 data-editable="true">Ciri-Ciri Pribadi yang Berintegritas</h3></span><span class="chev">▾</span></button><div class="acc-body" style="max-height: 184px;"><div class="acc-body-inner" data-editable="true"><ul><li>Menepati janji yang telah diucapkan</li><li>Jujur, baik dalam perkataan maupun perbuatan</li><li>Konsisten bersikap baik di depan maupun di belakang orang lain</li><li>Berani mengakui kesalahan dan bertanggung jawab atas perbuatannya</li><li>Tidak mudah terpengaruh untuk melanggar prinsip demi kepentingan sesaat</li></ul></div></div></div><div class="accordion open"><button class="acc-head" type="button"><span><span class="tag">03</span><h3 data-editable="true">Penyebab &amp; Dampak Ketidak sesuaian</h3></span><span class="chev">▾</span></button><div class="acc-body" style="max-height: 364px;"><div class="acc-body-inner" data-editable="true"><p><strong>Penyebab, antara lain:</strong></p><ul><li>Ingin terlihat baik atau diterima lingkungan pergaulan&nbsp;</li><li>Kurangnya kesadaran diri (self-awareness)</li><li>Takut menghadapi konsekuensi apabila berkata jujur</li><li>Kebiasaan menyepelekan janji-janji kecil</li></ul><p><strong>Dampak, antara lain:</strong></p><ul><li>Hilangnya kepercayaan orang lain (teman, guru, orang tua)</li><li>Rusaknya hubungan sosial dan citra diri</li><li>Terbentuknya kebiasaan tidak jujur yang terbawa hingga dewasa</li><li>Menimbulkan konflik batin karena tidak selaras dengan nilai sendiri</li></ul></div></div></div><div class="accordion open"><button class="acc-head" type="button"><span><span class="tag">04</span><h3 data-editable="true">Cara Membangun &amp; Menjaga Integritas Diri</h3></span><span class="chev">▾</span></button><div class="acc-body" style="max-height: 184px;"><div class="acc-body-inner" data-editable="true"><ul><li>Berpikir sebelum berjanji: pastikan realistis dan mampu ditepati</li><li>Membiasakan berkata jujur meskipun terasa berat</li><li>Konsisten bersikap baik, baik diawasi maupun tidak</li><li>Berani meminta maaf dan memperbaiki diri saat salah</li><li>Melakukan refleksi diri secara rutin tentang keselarasan ucapan dan tindakan</li></ul></div></div></div></div>
+    </section>
+
+    <section class="panel-section hidden" id="panel-kasus">
+      <div class="section-head"><span class="eyebrow">Diskusi</span><h2>Studi Kasus</h2></div>
+      <div id="caseWrap"><div class="case-card"><span class="case-label" data-editable="true">Kasus 1 — Janji Piket</span><p data-editable="true" style="margin-top:10px;">Andra berjanji di depan kelas akan selalu piket tepat waktu setiap hari Senin. Namun, tiga minggu berturut-turut ia selalu datang terlambat dengan berbagai alasan, sementara teman sekelompoknya harus mengerjakan piket sendirian. Ketika ditegur wali kelas, Andra berjanji lagi akan berubah, tetapi keesokan harinya ia kembali terlambat.</p><div class="case-q"><p data-editable="true">Apakah tindakan Andra mencerminkan integritas diri? Jelaskan alasannya.</p><textarea placeholder="Tulis pendapat kelompokmu..." id="case0q0"></textarea></div><div class="case-q"><p data-editable="true">Apa dampak dari sikap Andra terhadap kepercayaan teman-temannya?</p><textarea placeholder="Tulis pendapat kelompokmu..." id="case0q1"></textarea></div></div><div class="case-card"><span class="case-label" data-editable="true">Kasus 2 — Mengaku Jujur</span><p data-editable="true" style="margin-top:10px;">Saat ulangan matematika, Rani tidak sengaja menjatuhkan contekan kecil dari sakunya. Guru sempat melihat namun tidak yakin itu milik siapa. Rani memilih untuk maju dan mengakui bahwa itu miliknya, meski ia tahu akan menerima konsekuensi berupa pengurangan nilai.</p><div class="case-q"><p data-editable="true">Apakah tindakan Rani mencerminkan integritas diri? Jelaskan alasannya.</p><textarea placeholder="Tulis pendapat kelompokmu..." id="case1q0"></textarea></div><div class="case-q"><p data-editable="true">Bagaimana perasaanmu jika berada di posisi Rani?</p><textarea placeholder="Tulis pendapat kelompokmu..." id="case1q1"></textarea></div></div></div>
+    </section>
+
+    <section class="panel-section hidden" id="panel-games">
+      <div class="section-head"><span class="eyebrow">Permainan</span><h2>Tebak Skenario: Konsisten atau Tidak?</h2></div>
+      <div class="game-shell">
+        <div id="gamePlay">
+          <div class="score-tag" id="gameProgressLabel">Soal 1 dari 8</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%;"></div></div>
+          <div class="scenario-card" id="scenarioText">Beni berjanji akan mengembalikan buku pinjaman teman besok pagi, dan ia benar-benar mengembalikannya tepat waktu.</div>
+          <div class="game-choices">
+            <button class="choice-btn consistent" id="btnYes">✔ Konsisten</button>
+            <button class="choice-btn inconsistent" id="btnNo">✘ Tidak Konsisten</button>
+          </div>
+          <div class="feedback-box" id="feedbackBox" style="display: none;"><div class="verdict" id="verdictText"></div><div id="explainText"></div></div>
+          <button class="btn-next hidden" id="btnNext">Lanjut →</button>
+        </div>
+        <div class="game-final" id="gameFinal">
+          <span class="eyebrow">Selesai!</span>
+          <div class="final-score" id="finalScore">0/0</div>
+          <p id="finalMsg"></p>
+          <button class="btn-restart" id="btnRestart">Main Lagi</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel-section" id="panel-refleksi">
+      <div class="section-head"><span class="eyebrow">Lembar Kerja Digital</span><h2>Refleksi</h2></div>
+      <div class="reflect-form">
+        <div class="reflect-q">
+          <label data-editable="true">1. Menurutmu, apa yang dimaksud dengan integritas diri?</label>
+          <textarea id="r1" placeholder="Tulis jawabanmu di sini..."></textarea>
+        </div>
+        <div class="reflect-q">
+          <label data-editable="true">2. Ceritakan salah satu pengalamanmu ketika ucapan dan perbuatanmu belum selaras. Apa dampaknya?</label>
+          <textarea id="r2" placeholder="Tulis jawabanmu di sini..."></textarea>
+        </div>
+        <div class="reflect-q">
+          <label data-editable="true">3. Setelah mengikuti kegiatan hari ini, langkah apa yang akan kamu lakukan untuk lebih konsisten antara ucapan dan perbuatan?</label>
+          <textarea id="r3" placeholder="Tulis jawabanmu di sini..."></textarea>
+        </div>
+        <div class="reflect-q">
+          <label data-editable="true">4. Bagaimana perasaanmu mengikuti layanan bimbingan klasikal ini?</label>
+          <div class="emoji-row" id="emojiRow">
+            <button type="button" class="emoji-opt" data-val="Senang">😄 Senang</button>
+            <button type="button" class="emoji-opt" data-val="Biasa saja">🙂 Biasa saja</button>
+            <button type="button" class="emoji-opt" data-val="Bingung">🤔 Bingung</button>
+            <button type="button" class="emoji-opt" data-val="Kurang tertarik">😐 Kurang tertarik</button>
+          </div>
+        </div>
+        <button class="btn-submit" id="btnSubmitReflect">Selesai &amp; Kirim Refleksiku</button>
+        <div class="done-note" id="doneNote">✔ Refleksimu tersimpan. Tunjukkan ke Guru BK atau kumpulkan sesuai arahan.</div>
+      </div>
+    </section>
+  </main>
+  <footer class="foot">SELARAS — Media Bimbingan Klasikal · BK SMP Negeri 2 Bandar Lampung</footer>
+</div>
+
+<!-- ============ TEACHER PANEL ============ -->
+<div id="teacherPanel" class="">
+  <div class="tp-head"><h3>⚙️ Mode Guru</h3><button class="tp-close" id="tpClose" type="button">✕</button></div>
+  <div class="tp-tabs">
+    <button class="tp-tab" data-tp="edit">Edit Isi</button>
+    <button class="tp-tab" data-tp="games">Soal Games</button>
+    <button class="tp-tab active" data-tp="hasil">Hasil Siswa</button>
+  </div>
+  <div class="tp-body">
+    <div class="tp-panel" id="tp-edit">
+      <div class="tp-note">Semua teks bergaris putus-putus emas kini bisa langsung diklik dan diketik ulang — pada Beranda, Materi, Studi Kasus, dan label pertanyaan Refleksi. Perubahan tersimpan di halaman ini secara langsung.</div>
+      <p style="font-size:.85rem; color:var(--slate);">Buka menu Beranda / Materi / Studi Kasus / Refleksi di atas, lalu klik teks yang ingin diubah.</p>
+    </div>
+    <div class="tp-panel" id="tp-games">
+      <div class="tp-note">Kelola daftar skenario pada permainan "Tebak Skenario". Ubah teks, status (Konsisten/Tidak), dan penjelasannya di sini.</div>
+      <div id="gameEditorList"><div class="ge-row"><textarea class="ge-text">Beni berjanji akan mengembalikan buku pinjaman teman besok pagi, dan ia benar-benar mengembalikannya tepat waktu.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Beni menepati janji yang ia ucapkan — inilah wujud nyata integritas: kata dan tindakan sejalan.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Dinda bilang ke gurunya sudah mengerjakan PR, padahal buku tugasnya masih kosong.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Ucapan Dinda tidak sesuai kenyataan. Ketidakjujuran seperti ini merusak kepercayaan orang lain.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Ketika tidak ada guru yang mengawasi, Fajar tetap membuang sampah pada tempatnya seperti biasa.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Integritas terlihat justru saat tidak diawasi — sikap baik dilakukan bukan karena dilihat orang.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Sinta mengaku pada temannya bahwa ia akan berhenti menyontek, tapi minggu berikutnya ia menyontek lagi saat ulangan.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Ada jarak antara janji dan kenyataan. Konsistensi berarti bertahan pada komitmen, bukan hanya sesaat.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Rafi salah memberi kembalian saat membeli jajan, ia sadar lalu kembali untuk mengembalikan uang lebih itu.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Berani jujur meski tidak ada yang tahu adalah bentuk konkret dari integritas diri.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Wulan berkata pada orang tuanya akan belajar di kamar, padahal ia bermain gawai sepanjang malam.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Ucapan dan perbuatan Wulan tidak selaras. Kebiasaan ini bila dibiarkan bisa menjadi pola tidak jujur.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Dimas berjanji membantu temannya belajar untuk ujian, dan ia benar-benar meluangkan waktu sepulang sekolah untuk membantu.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Dimas menunjukkan tanggung jawab atas ucapannya — inti dari sikap konsisten.</textarea><button class="ge-del" type="button">Hapus Soal</button></div><div class="ge-row"><textarea class="ge-text">Vino mengaku pada ketua kelas sudah mengumpulkan iuran kelas, padahal ia belum sama sekali menyetorkannya.</textarea><select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select><textarea class="ge-explain">Klaim yang tidak sesuai fakta ini adalah bentuk ketidaksesuaian ucapan dan perbuatan yang bisa berdampak pada hilangnya kepercayaan.</textarea><button class="ge-del" type="button">Hapus Soal</button></div></div>
+      <button class="btn-add-scenario" id="btnAddScenario" type="button">+ Tambah Soal</button>
+    </div>
+    <div class="tp-panel active" id="tp-hasil">
+      <div class="tp-note">Untuk melihat kumpulan jawaban Refleksi seluruh siswa dari HP masing-masing, hubungkan website ini ke Google Form (gratis, ± 10 menit sekali setting). Lihat panduan lengkap yang menyertai berkas ini.</div>
+      <div class="tp-field"><label>URL Tujuan Kirim (Form Response URL)</label><input type="url" id="cfgActionUrl" placeholder="https://docs.google.com/forms/d/e/.../formResponse"></div>
+      <div class="tp-field"><label>ID Kolom · Nama</label><input type="text" id="cfgFieldNama" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>ID Kolom · Kelas</label><input type="text" id="cfgFieldKelas" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>ID Kolom · Jawaban No.1</label><input type="text" id="cfgFieldR1" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>ID Kolom · Jawaban No.2</label><input type="text" id="cfgFieldR2" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>ID Kolom · Jawaban No.3</label><input type="text" id="cfgFieldR3" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>ID Kolom · Perasaan</label><input type="text" id="cfgFieldPerasaan" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>ID Kolom · Skor Games</label><input type="text" id="cfgFieldSkor" placeholder="entry.123456789"></div>
+      <div class="tp-field"><label>URL Lihat Hasil (Google Sheet/Form)</label><input type="url" id="cfgResultsUrl" placeholder="https://docs.google.com/spreadsheets/..."></div>
+      <button class="tp-btn secondary" id="btnSaveFormCfg" type="button" style="width:100%; margin-bottom:8px;">💾 Simpan Pengaturan</button>
+      <button class="tp-btn primary" id="btnOpenResults" type="button" style="width:100%;">📊 Buka Hasil Jawaban Siswa</button>
+    </div>
+  </div>
+  <div class="tp-foot">
+    <button class="tp-btn primary" id="btnDownloadSite" type="button">💾 Unduh Perubahan (Simpan Berkas Baru)</button>
+    <button class="tp-btn secondary" id="btnExitTeacher" type="button">Keluar Mode Guru</button>
+  </div>
+</div>
+
+<script type="application/json" id="data-scenarios">[{"text":"Beni berjanji akan mengembalikan buku pinjaman teman besok pagi, dan ia benar-benar mengembalikannya tepat waktu.","consistent":true,"explain":"Beni menepati janji yang ia ucapkan — inilah wujud nyata integritas: kata dan tindakan sejalan."},{"text":"Dinda bilang ke gurunya sudah mengerjakan PR, padahal buku tugasnya masih kosong.","consistent":false,"explain":"Ucapan Dinda tidak sesuai kenyataan. Ketidakjujuran seperti ini merusak kepercayaan orang lain."},{"text":"Ketika tidak ada guru yang mengawasi, Fajar tetap membuang sampah pada tempatnya seperti biasa.","consistent":true,"explain":"Integritas terlihat justru saat tidak diawasi — sikap baik dilakukan bukan karena dilihat orang."},{"text":"Sinta mengaku pada temannya bahwa ia akan berhenti menyontek, tapi minggu berikutnya ia menyontek lagi saat ulangan.","consistent":false,"explain":"Ada jarak antara janji dan kenyataan. Konsistensi berarti bertahan pada komitmen, bukan hanya sesaat."},{"text":"Rafi salah memberi kembalian saat membeli jajan, ia sadar lalu kembali untuk mengembalikan uang lebih itu.","consistent":true,"explain":"Berani jujur meski tidak ada yang tahu adalah bentuk konkret dari integritas diri."},{"text":"Wulan berkata pada orang tuanya akan belajar di kamar, padahal ia bermain gawai sepanjang malam.","consistent":false,"explain":"Ucapan dan perbuatan Wulan tidak selaras. Kebiasaan ini bila dibiarkan bisa menjadi pola tidak jujur."},{"text":"Dimas berjanji membantu temannya belajar untuk ujian, dan ia benar-benar meluangkan waktu sepulang sekolah untuk membantu.","consistent":true,"explain":"Dimas menunjukkan tanggung jawab atas ucapannya — inti dari sikap konsisten."},{"text":"Vino mengaku pada ketua kelas sudah mengumpulkan iuran kelas, padahal ia belum sama sekali menyetorkannya.","consistent":false,"explain":"Klaim yang tidak sesuai fakta ini adalah bentuk ketidaksesuaian ucapan dan perbuatan yang bisa berdampak pada hilangnya kepercayaan."}]</script>
+<script type="application/json" id="data-formcfg">{"actionUrl":"","resultsUrl":"https://script.google.com/macros/s/AKfycbzUC-ZkXfOR2NlZD6skAUf9uoUFtWgXWrmC6Wkw1kl3zcdaoEcvMyQ_vysaYMQbmaqgPg/exec","fields":{"nama":"","kelas":"","r1":"","r2":"","r3":"","perasaan":"","skor":""}}</script>
+
+<script id="mainScript">
+(function(){
+  var TEACHER_PIN = '2468';
+  var teacherMode = false;
+  var state = { name:"", cls:"" };
+  var lastGameScoreText = '-';
+
+  // ---------- persisted data ----------
+  var scenariosEl = document.getElementById('data-scenarios');
+  var scenarios = JSON.parse(scenariosEl.textContent);
+  function persistScenarios(){ scenariosEl.textContent = JSON.stringify(scenarios); }
+
+  var formCfgEl = document.getElementById('data-formcfg');
+  var formConfig = JSON.parse(formCfgEl.textContent);
+  function persistFormConfig(){ formCfgEl.textContent = JSON.stringify(formConfig); }
+
+  // ---------- LANDING ----------
+  var startForm = document.getElementById('startForm');
+  function enterApp(name, cls){
+    state.name = name; state.cls = cls;
+    document.getElementById('welcomeName').textContent = 'Halo, ' + name + '!';
+    document.getElementById('studentPill').textContent = name + ' · Kelas ' + cls;
+    document.getElementById('landing').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    window.scrollTo(0,0);
+  }
+  startForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('fldName').value.trim();
+    var cls = document.getElementById('fldClass').value.trim();
+    if(!name || !cls){ document.getElementById('errMsg').style.display = 'block'; return; }
+    enterApp(name, cls);
+  });
+  document.getElementById('btnTeacherEntry').addEventListener('click', function(){
+    var pin = prompt('Masukkan PIN Guru:');
+    if(pin === null) return;
+    if(pin !== TEACHER_PIN){ alert('PIN salah.'); return; }
+    enterApp('Guru BK', '-');
+    toggleTeacherMode(true);
+  });
+
+  // ---------- NAV ----------
+  var tabBtns = document.querySelectorAll('#tabNav button');
+  tabBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('main.panel > section').forEach(function(s){ s.classList.add('hidden'); });
+      document.getElementById('panel-' + btn.dataset.target).classList.remove('hidden');
+      window.scrollTo(0,0);
+    });
+  });
+
+  // ---------- MATERI (render only if not already present, so edits survive reload) ----------
+  var materiSeed = [
+    { tag:'01', title:'Pengertian Integritas Diri',
+      body:"<p>Integritas berasal dari kata Latin <em>integer</em> yang berarti utuh atau lengkap. Secara sederhana, integritas adalah konsistensi antara apa yang dipikirkan, diucapkan, dan dilakukan seseorang.</p><p>Seseorang dikatakan berintegritas apabila tindakannya selalu selaras dengan nilai, prinsip, dan perkataannya — baik ketika dilihat orang lain maupun ketika sendirian.</p><p>Dalam Profil Pelajar Pancasila, integritas adalah bagian dari elemen <strong>Akhlak Pribadi</strong> pada dimensi Beriman, Bertakwa kepada Tuhan Yang Maha Esa, dan Berakhlak Mulia.</p>" },
+    { tag:'02', title:'Ciri-Ciri Pribadi yang Berintegritas',
+      body:"<ul><li>Menepati janji yang telah diucapkan</li><li>Jujur, baik dalam perkataan maupun perbuatan</li><li>Konsisten bersikap baik di depan maupun di belakang orang lain</li><li>Berani mengakui kesalahan dan bertanggung jawab atas perbuatannya</li><li>Tidak mudah terpengaruh untuk melanggar prinsip demi kepentingan sesaat</li></ul>" },
+    { tag:'03', title:'Penyebab &amp; Dampak Ketidaksesuaian',
+      body:"<p><strong>Penyebab, antara lain:</strong></p><ul><li>Ingin terlihat baik atau diterima lingkungan pergaulan (pencitraan)</li><li>Kurangnya kesadaran diri (self-awareness)</li><li>Takut menghadapi konsekuensi apabila berkata jujur</li><li>Kebiasaan menyepelekan janji-janji kecil</li></ul><p><strong>Dampak, antara lain:</strong></p><ul><li>Hilangnya kepercayaan orang lain (teman, guru, orang tua)</li><li>Rusaknya hubungan sosial dan citra diri</li><li>Terbentuknya kebiasaan tidak jujur yang terbawa hingga dewasa</li><li>Menimbulkan konflik batin karena tidak selaras dengan nilai sendiri</li></ul>" },
+    { tag:'04', title:'Cara Membangun &amp; Menjaga Integritas Diri',
+      body:"<ul><li>Berpikir sebelum berjanji: pastikan realistis dan mampu ditepati</li><li>Membiasakan berkata jujur meskipun terasa berat</li><li>Konsisten bersikap baik, baik diawasi maupun tidak</li><li>Berani meminta maaf dan memperbaiki diri saat salah</li><li>Melakukan refleksi diri secara rutin tentang keselarasan ucapan dan tindakan</li></ul>" }
+  ];
+  var accWrap = document.getElementById('accordionWrap');
+  function bindAccordion(el, startOpen){
+    var head = el.querySelector('.acc-head');
+    var body = el.querySelector('.acc-body');
+    function setState(open){
+      if(open){ el.classList.add('open'); body.style.maxHeight = body.scrollHeight + 'px'; }
+      else{ el.classList.remove('open'); body.style.maxHeight = 0; }
+    }
+    head.addEventListener('click', function(e){
+      if(teacherMode && e.target.closest('[contenteditable="true"]')) return;
+      setState(!el.classList.contains('open'));
+    });
+    if(startOpen) requestAnimationFrame(function(){ setState(true); });
+  }
+  if(accWrap.children.length === 0){
+    materiSeed.forEach(function(m, i){
+      var el = document.createElement('div');
+      el.className = 'accordion';
+      el.innerHTML =
+        '<button class="acc-head" type="button"><span><span class="tag">'+m.tag+'</span><h3 data-editable="true">'+m.title+'</h3></span><span class="chev">▾</span></button>'+
+        '<div class="acc-body"><div class="acc-body-inner" data-editable="true">'+m.body+'</div></div>';
+      accWrap.appendChild(el);
+      bindAccordion(el, i===0);
+    });
+  } else {
+    accWrap.querySelectorAll('.accordion').forEach(function(el, i){ bindAccordion(el, i===0); });
+  }
+
+  // ---------- STUDI KASUS ----------
+  var caseSeed = [
+    { label:'Kasus 1 — Janji Piket',
+      text:'Andra berjanji di depan kelas akan selalu piket tepat waktu setiap hari Senin. Namun, tiga minggu berturut-turut ia selalu datang terlambat dengan berbagai alasan, sementara teman sekelompoknya harus mengerjakan piket sendirian. Ketika ditegur wali kelas, Andra berjanji lagi akan berubah, tetapi keesokan harinya ia kembali terlambat.',
+      qs:['Apakah tindakan Andra mencerminkan integritas diri? Jelaskan alasannya.','Apa dampak dari sikap Andra terhadap kepercayaan teman-temannya?'] },
+    { label:'Kasus 2 — Mengaku Jujur',
+      text:'Saat ulangan matematika, Rani tidak sengaja menjatuhkan contekan kecil dari sakunya. Guru sempat melihat namun tidak yakin itu milik siapa. Rani memilih untuk maju dan mengakui bahwa itu miliknya, meski ia tahu akan menerima konsekuensi berupa pengurangan nilai.',
+      qs:['Apakah tindakan Rani mencerminkan integritas diri? Jelaskan alasannya.','Bagaimana perasaanmu jika berada di posisi Rani?'] }
+  ];
+  var caseWrap = document.getElementById('caseWrap');
+  if(caseWrap.children.length === 0){
+    caseSeed.forEach(function(c, i){
+      var qHtml = c.qs.map(function(q, j){
+        return '<div class="case-q"><p data-editable="true">'+q+'</p><textarea placeholder="Tulis pendapat kelompokmu..." id="case'+i+'q'+j+'"></textarea></div>';
+      }).join('');
+      var card = document.createElement('div');
+      card.className = 'case-card';
+      card.innerHTML = '<span class="case-label" data-editable="true">'+c.label+'</span><p data-editable="true" style="margin-top:10px;">'+c.text+'</p>' + qHtml;
+      caseWrap.appendChild(card);
+    });
+  }
+
+  // ---------- GAMES ----------
+  var gIdx = 0, gScore = 0, gAnswered = false;
+  var scenarioText = document.getElementById('scenarioText');
+  var progressFill = document.getElementById('progressFill');
+  var progressLabel = document.getElementById('gameProgressLabel');
+  var feedbackBox = document.getElementById('feedbackBox');
+  var verdictText = document.getElementById('verdictText');
+  var explainText = document.getElementById('explainText');
+  var btnYes = document.getElementById('btnYes');
+  var btnNo = document.getElementById('btnNo');
+  var btnNext = document.getElementById('btnNext');
+  var gamePlay = document.getElementById('gamePlay');
+  var gameFinal = document.getElementById('gameFinal');
+
+  function loadScenario(){
+    if(scenarios.length === 0){ scenarioText.textContent = 'Belum ada soal. Guru dapat menambah soal lewat Mode Guru.'; return; }
+    gAnswered = false;
+    var s = scenarios[gIdx];
+    scenarioText.textContent = s.text;
+    progressLabel.textContent = 'Soal ' + (gIdx+1) + ' dari ' + scenarios.length;
+    progressFill.style.width = (gIdx/scenarios.length*100) + '%';
+    feedbackBox.style.display = 'none';
+    feedbackBox.className = 'feedback-box';
+    btnNext.classList.add('hidden');
+    btnYes.disabled = false; btnNo.disabled = false;
+  }
+  function answer(choseConsistent){
+    if(gAnswered || scenarios.length===0) return;
+    gAnswered = true;
+    var s = scenarios[gIdx];
+    var correct = (choseConsistent === s.consistent);
+    if(correct) gScore++;
+    feedbackBox.classList.add(correct ? 'correct' : 'wrong');
+    verdictText.textContent = correct ? 'Tepat sekali!' : 'Belum tepat.';
+    explainText.textContent = s.explain + ' (Skenario ini sebenarnya: ' + (s.consistent ? 'KONSISTEN' : 'TIDAK KONSISTEN') + ')';
+    feedbackBox.style.display = 'block';
+    btnYes.disabled = true; btnNo.disabled = true;
+    btnNext.classList.remove('hidden');
+  }
+  btnYes.addEventListener('click', function(){ answer(true); });
+  btnNo.addEventListener('click', function(){ answer(false); });
+  btnNext.addEventListener('click', function(){
+    gIdx++;
+    if(gIdx >= scenarios.length){
+      progressFill.style.width = '100%';
+      gamePlay.classList.add('hidden');
+      gameFinal.style.display = 'block';
+      lastGameScoreText = gScore + '/' + scenarios.length;
+      document.getElementById('finalScore').textContent = lastGameScoreText;
+      var msg;
+      if(gScore === scenarios.length) msg = 'Luar biasa! Kamu sangat peka membedakan sikap yang konsisten dan tidak konsisten.';
+      else if(gScore >= scenarios.length*0.6) msg = 'Bagus! Pemahamanmu tentang integritas sudah cukup baik.';
+      else msg = 'Terus belajar, ya! Baca kembali menu Materi untuk memperkuat pemahamanmu.';
+      document.getElementById('finalMsg').textContent = msg;
+    } else { loadScenario(); }
+  });
+  document.getElementById('btnRestart').addEventListener('click', function(){
+    gIdx = 0; gScore = 0;
+    gamePlay.classList.remove('hidden');
+    gameFinal.style.display = 'none';
+    loadScenario();
+  });
+  loadScenario();
+
+  // ---------- REFLEKSI ----------
+  var feeling = '';
+  document.querySelectorAll('.emoji-opt').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.emoji-opt').forEach(function(b){ b.classList.remove('selected'); });
+      btn.classList.add('selected');
+      feeling = btn.dataset.val;
+    });
+  });
+  function submitToGoogleForm(data){
+    if(!formConfig.actionUrl) return false;
+    var iframe = document.getElementById('hiddenFormFrame');
+    if(!iframe){
+      iframe = document.createElement('iframe');
+      iframe.name = 'hiddenFormFrame'; iframe.id = 'hiddenFormFrame'; iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+    var form = document.createElement('form');
+    form.action = formConfig.actionUrl; form.method = 'POST'; form.target = 'hiddenFormFrame';
+    Object.keys(data).forEach(function(key){
+      var fieldId = formConfig.fields && formConfig.fields[key];
+      if(fieldId){
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = fieldId; inp.value = data[key];
+        form.appendChild(inp);
+      }
+    });
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(function(){ if(form.parentNode) document.body.removeChild(form); }, 1200);
+    return true;
+  }
+  document.getElementById('btnSubmitReflect').addEventListener('click', function(){
+    var r1 = document.getElementById('r1').value.trim();
+    var r2 = document.getElementById('r2').value.trim();
+    var r3 = document.getElementById('r3').value.trim();
+    var payload = { nama: state.name, kelas: state.cls, r1: r1 || '-', r2: r2 || '-', r3: r3 || '-', perasaan: feeling || '-', skor: lastGameScoreText };
+    var sentOnline = submitToGoogleForm(payload);
+
+    var content =
+"LEMBAR REFLEKSI - SELARAS: BIJAK BERKATA DAN BERTINDAK\n"+
+"===========================================================\n"+
+"Nama  : " + state.name + "\n"+"Kelas : " + state.cls + "\n\n"+
+"1. Apa yang dimaksud dengan integritas diri?\n" + payload.r1 + "\n\n"+
+"2. Pengalaman ketika ucapan dan perbuatan belum selaras & dampaknya:\n" + payload.r2 + "\n\n"+
+"3. Langkah untuk lebih konsisten setelah kegiatan ini:\n" + payload.r3 + "\n\n"+
+"4. Perasaan mengikuti layanan ini: " + payload.perasaan + "\n"+
+"5. Skor games: " + payload.skor + "\n";
+    var blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'Refleksi_' + state.name.replace(/\s+/g,'_') + '.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+
+    var note = document.getElementById('doneNote');
+    note.textContent = sentOnline
+      ? '✔ Refleksimu terkirim ke Guru BK dan juga tersimpan sebagai berkas teks.'
+      : '✔ Refleksimu tersimpan sebagai berkas teks. Tunjukkan ke Guru BK atau kumpulkan sesuai arahan.';
+    note.style.display = 'block';
+  });
+
+  // ================= TEACHER MODE =================
+  var teacherPanel = document.getElementById('teacherPanel');
+  var btnTeacherMode = document.getElementById('btnTeacherMode');
+
+  function setEditable(on){
+    document.querySelectorAll('[data-editable]').forEach(function(el){
+      if(on) el.setAttribute('contenteditable','true'); else el.removeAttribute('contenteditable');
+    });
+  }
+  function toggleTeacherMode(forceOn){
+    if(forceOn === true || (!teacherMode && forceOn === undefined)){
+      if(forceOn === undefined){
+        var pin = prompt('Masukkan PIN Guru untuk mengaktifkan Mode Guru:');
+        if(pin === null) return;
+        if(pin !== TEACHER_PIN){ alert('PIN salah.'); return; }
+      }
+      teacherMode = true;
+      btnTeacherMode.classList.add('on');
+      teacherPanel.classList.remove('hidden');
+      setEditable(true);
+      renderGameEditor();
+      loadFormConfigToUI();
+    } else {
+      teacherMode = false;
+      btnTeacherMode.classList.remove('on');
+      teacherPanel.classList.add('hidden');
+      setEditable(false);
+    }
+  }
+  btnTeacherMode.addEventListener('click', function(){ toggleTeacherMode(teacherMode ? false : undefined); });
+  document.getElementById('tpClose').addEventListener('click', function(){ toggleTeacherMode(false); });
+  document.getElementById('btnExitTeacher').addEventListener('click', function(){ toggleTeacherMode(false); });
+
+  document.querySelectorAll('.tp-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tp-tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.tp-panel').forEach(function(p){ p.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById('tp-' + tab.dataset.tp).classList.add('active');
+    });
+  });
+
+  // Games editor
+  var gameEditorList = document.getElementById('gameEditorList');
+  function renderGameEditor(){
+    gameEditorList.innerHTML = '';
+    scenarios.forEach(function(s, idx){
+      var row = document.createElement('div');
+      row.className = 'ge-row';
+      row.innerHTML =
+        '<textarea class="ge-text">'+s.text+'</textarea>'+
+        '<select class="ge-consistent"><option value="1">Konsisten</option><option value="0">Tidak Konsisten</option></select>'+
+        '<textarea class="ge-explain">'+s.explain+'</textarea>'+
+        '<button class="ge-del" type="button">Hapus Soal</button>';
+      row.querySelector('.ge-consistent').value = s.consistent ? '1' : '0';
+      row.querySelector('.ge-text').addEventListener('input', function(e){ scenarios[idx].text = e.target.value; persistScenarios(); });
+      row.querySelector('.ge-consistent').addEventListener('change', function(e){ scenarios[idx].consistent = (e.target.value === '1'); persistScenarios(); });
+      row.querySelector('.ge-explain').addEventListener('input', function(e){ scenarios[idx].explain = e.target.value; persistScenarios(); });
+      row.querySelector('.ge-del').addEventListener('click', function(){
+        scenarios.splice(idx,1); persistScenarios(); renderGameEditor();
+        gIdx = 0; gScore = 0; gamePlay.classList.remove('hidden'); gameFinal.style.display='none'; loadScenario();
+      });
+      gameEditorList.appendChild(row);
+    });
+  }
+  document.getElementById('btnAddScenario').addEventListener('click', function(){
+    scenarios.push({ text:'Tulis skenario baru di sini...', consistent:true, explain:'Tulis penjelasan jawabannya di sini...' });
+    persistScenarios(); renderGameEditor();
+  });
+
+  // Form config panel
+  var fCfgAction = document.getElementById('cfgActionUrl');
+  var fCfgResults = document.getElementById('cfgResultsUrl');
+  var fCfgFieldMap = { nama:'cfgFieldNama', kelas:'cfgFieldKelas', r1:'cfgFieldR1', r2:'cfgFieldR2', r3:'cfgFieldR3', perasaan:'cfgFieldPerasaan', skor:'cfgFieldSkor' };
+  function loadFormConfigToUI(){
+    fCfgAction.value = formConfig.actionUrl || '';
+    fCfgResults.value = formConfig.resultsUrl || '';
+    Object.keys(fCfgFieldMap).forEach(function(k){
+      document.getElementById(fCfgFieldMap[k]).value = (formConfig.fields && formConfig.fields[k]) || '';
+    });
+  }
+  document.getElementById('btnSaveFormCfg').addEventListener('click', function(){
+    formConfig.actionUrl = fCfgAction.value.trim();
+    formConfig.resultsUrl = fCfgResults.value.trim();
+    formConfig.fields = {};
+    Object.keys(fCfgFieldMap).forEach(function(k){ formConfig.fields[k] = document.getElementById(fCfgFieldMap[k]).value.trim(); });
+    persistFormConfig();
+    alert('Pengaturan tersimpan di halaman ini. Klik "Unduh Perubahan" agar tersimpan permanen di berkas yang dibagikan ke siswa.');
+  });
+  document.getElementById('btnOpenResults').addEventListener('click', function(){
+    if(!formConfig.resultsUrl){ alert('Tautan hasil belum diatur. Isi dulu "URL Lihat Hasil" di atas.'); return; }
+    window.open(formConfig.resultsUrl, '_blank');
+  });
+
+  // Save / download whole site
+  document.getElementById('btnDownloadSite').addEventListener('click', function(){
+    persistScenarios();
+    persistFormConfig();
+    var wasEditable = teacherMode;
+    setEditable(false);
+    var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    if(wasEditable) setEditable(true);
+    var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'selaras_bijak_berkata_dan_bertindak.html';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    alert('Berkas baru berhasil diunduh. Gunakan berkas ini (bukan yang lama) untuk dibagikan ke siswa.');
+  });
+
+})();
+</script>
+
+
+</body></html>
